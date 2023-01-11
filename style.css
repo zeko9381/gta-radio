@@ -12,3 +12,13 @@
   position: absolute;
   top: 15vh;
 }
+
+#play {
+  position: absolute;
+  left: 50%;
+  right: 50%;
+  transform: translateX(-50%);
+  bottom: 5vh;
+  height: 20vh;
+  cursor: pointer;
+}
