@@ -4,6 +4,8 @@
 
 #coverFlow {
   width: 100vw;
+  background: rgb(62,62,62);
+  background: linear-gradient(180deg, rgba(62,62,62,1) 0%, rgba(255,255,255,1) 50%, rgba(62,62,62,1) 100%);
 }
 
 #trackName {
@@ -21,4 +23,12 @@
   bottom: 5vh;
   height: 20vh;
   cursor: pointer;
+}
+
+body {
+  background-color: #3e3e3e;
+}
+
+h1 {
+  color: #dfdfdf;
 }
