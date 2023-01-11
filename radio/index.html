@@ -47,7 +47,12 @@
                 this.audio = new Audio();
                 this.audio.muted = true;
                 this.audio.loop = false;
-                this.audio.src = encodeURIComponent(path + this.name + "/" + this.tracks[this.counter]);
+
+                if(this.tracks[this.counter].includes("Adverts"))
+                    this.audio.src = encodeURIComponent(this.tracks[this.counter]);
+                else
+                    this.audio.src = encodeURIComponent(path + this.name + "/" + this.tracks[this.counter]);
+                
                 this.audio.play();
 
                 this.audio.onended = this.nextTrack;
@@ -67,7 +72,10 @@
                     this.buildTrackList();
                 }
 
-                this.audio.src = encodeURIComponent(path + this.name + "/" + this.tracks[this.counter]);
+                if(this.tracks[this.counter].includes("Adverts"))
+                    this.audio.src = encodeURIComponent(this.tracks[this.counter]);
+                else
+                    this.audio.src = encodeURIComponent(path + this.name + "/" + this.tracks[this.counter]);
                 this.audio.play();
                 printTrack()
             }
@@ -135,7 +143,7 @@
             let display = document.getElementById("trackName");
             let currentTrack = radio.stations[radio.currentStation].counter;
             let name = radio.stations[radio.currentStation].tracks[currentTrack];
-            if(name.startsWith("../"))
+            if(name.includes("Adverts"))
                 name = "Oglasi";
             else
                 name = name.substr(4, name.length - 8);
@@ -200,7 +208,7 @@
 
         var adverts = ['Ammunation.mp3', 'PSA (Cars for teenagers instead of bicycles).mp3', "Blotto's #1 (Gold-plated Razorblades).mp3", "Blotto's #2 (Silver Straw).mp3", 'Bouche Cologne.mp3', "Castradon ('Baldness is loneliness').mp3", 'Commando Pest Eradication.mp3', 'Commemorative Miniatures.mp3', "The Crazy Cock Gentleman's Club.mp3", 'Creative Plastic Surgery.mp3', 'Eris Shoes.mp3', 'Hampshire Nannies Ltd.mp3', 'The Military.mp3', 'Logger Beer.mp3', 'Logger Light.mp3', 'The Midlife Crisis Center.mp3', "'My Five Uncles' on LSBC.mp3", 'Proposition 421 (Outlaw Smoking Everywhere).mp3', 'Proposition 832 (Ban Immigration Green Cards).mp3', 'Redwood Cigarettes.mp3', 'Renegade Cologne.mp3', 'Sooth Cough Medicine.mp3', 'San Andreas Telephone #1 (Orphan).mp3', 'San Andreas Telephone #2 (Ex-husband).mp3', 'San Andreas Telephone #3 (New Father).mp3', 'San Andreas Telephone #4 (Son).mp3', 'Ultimate Disc in the Dark.mp3', 'Fokari Film.mp3', 'Dream Makers.mp3', "'Intergalactic Wrestling Championship' on Weazel.mp3", 'Proposition 602 (No Mass Transit).mp3', "Mike Andrews Live #1 ('U-S-A!').mp3", 'Abiggo Brokerage and Pawn.mp3', "Blotto's #3 (Tiny Spoon).mp3", 'Shine by Helmetshine.mp3', 'de Koch Diamonds.mp3', "Janus ('Invent the new you').mp3", 'Rapidite, the Do-It-Yourself Sexual Realignment Kit.mp3', "Grin ('Keeps me at the Equator...').mp3", "Mike Andrews Live #2 ('Enjoy it').mp3", 'Celebrate with Cake #1 (Wife).mp3', 'Celebrate with Cake #2 (Son).mp3', 'Sprunk.mp3', 'Crimson Executive Spouse Indemnity Services.mp3', "Herr Gruber's Spa.mp3", 'American Bank of Los Santos.mp3', 'The Cavern of Sorrow Fantasy Game.mp3', "Cluckin' Bell #1 ('We're psychotic crazies').mp3", "Cluckin' Bell #2 ('All you protestors can go to Hell').mp3", "The Glory Hole Themepark #1 ('I know it's safe...').mp3", "The Glory Hole Themepark #2 ('Something they'll never forget').mp3", 'Inversion Therapy.mp3', "Kilimanjaro Clothes #1 ('Women love big men').mp3", "Kilimanjaro Clothes #2 ('You're as big as a mountain').mp3", 'Carcer City Vacations.mp3', "'Law' on Weazel #1 ('Gritty new show').mp3", "'Law' on Weazel #2 ('Because paperwork is dramatic').mp3", "'Law' on Weazel #3 ('The real life fictional drama').mp3", 'The Starfish Resort and Casino.mp3', 'Tropicarcinoma.mp3', "Zebra Bar #1 ('What about nuts').mp3", "Zebra Bar #2 ('Wow, it's enormous.').mp3", "The Epsilon Program #1 ('Do you want answers').mp3", "The Epsilon Program #2 ('Science is a lie').mp3", "The Epsilon Program #3 ('Do you worry that nobody likes you').mp3", 'Executive Intruder Extermination Service.mp3', 'Exsorbeo Handheld Gaming System.mp3', "Lustrious #1 ('There she was...').mp3", "Lustrious #2 ('How you get your hair all greasy').mp3"]
         for(let i = 0; i < adverts.length; i++)
-            adverts[i] = "../Adverts/" + adverts[i];
+            adverts[i] = "assets/san-andreas/radio/Adverts/" + adverts[i];
 
         var radio = new Radio(radioJson);
 
