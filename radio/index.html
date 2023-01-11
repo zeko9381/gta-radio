@@ -37,7 +37,6 @@
                 this.name = def.name;
                 this.icon = def.icon;
                 this.tracks = def.tracks;
-                //this.shuffle = this.shuffle.bind(this);
                 this.buildTrackList = this.buildTrackList.bind(this);
                 this.buildTrackList();
                 this.counter = 0;
@@ -48,6 +47,14 @@
                 this.audio.muted = true;
                 this.audio.loop = false;
                 this.audio.src = encodeURIComponent(path + this.name + "/" + this.tracks[this.counter]);
+
+                if (this.audio.canPlayType('audio/mpeg')) {
+                    this.audio.play().then(() => {
+                        // Audio is playing
+                    }).catch((error) => {
+                        console.log("Error v RadioStation")
+                    })
+                }
                 this.audio.play();
 
                 this.audio.onended = this.nextTrack;
