@@ -1,0 +1,233 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <base href="../">
+    <title>RadioSim</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-GLhlTQ8iRABdZLl6O3oVMWSktQOp6b7In1Zl3/Jr59b6EGGoI1aFkw7cmDA6j6gD" crossorigin="anonymous">
+    <link href="style.css" rel="stylesheet">
+    
+  </head>
+  <body style="background-color: gray">
+    <div class="container-fluid" style="height: 100vh; display: grid; place-items: center; padding: 0">
+        <h1 id="trackName">Track name</h1>
+
+      <div id="coverFlow" class="carousel slide">
+        <div class="carousel-inner" id="picker">
+            <!-- Tukaj zapolne JS -->
+        </div>
+        <button class="carousel-control-prev" type="button" data-bs-target="#coverFlow" data-bs-slide="prev">
+          <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+          <span class="visually-hidden">Previous</span>
+        </button>
+        <button class="carousel-control-next" type="button" data-bs-target="#coverFlow" data-bs-slide="next">
+          <span class="carousel-control-next-icon" aria-hidden="true"></span>
+          <span class="visually-hidden">Next</span>
+        </button>
+      </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js" integrity="sha384-w76AqPfDkMBDXo30jS1Sgez6pr3x5MlQ1ZAGC+nuZB+EYdgRZgiwxhTBTkF7CXvN" crossorigin="anonymous"></script>
+    <script>
+        const value = new URLSearchParams(location.search).get('game');
+        const path = 'assets/' + value + '/radio/';
+
+        class RadioStation {
+            constructor(def) {
+                this.name = def.name;
+                this.icon = def.icon;
+                this.tracks = def.tracks;
+                //this.shuffle = this.shuffle.bind(this);
+                this.buildTrackList = this.buildTrackList.bind(this);
+                this.buildTrackList();
+                this.counter = 0;
+
+                this.nextTrack = this.nextTrack.bind(this);
+
+                this.audio = new Audio();
+                this.audio.muted = true;
+                this.audio.loop = false;
+                this.audio.src = encodeURIComponent(path + this.name + "/" + this.tracks[this.counter]);
+                this.audio.play();
+
+                this.audio.onended = this.nextTrack;
+            }
+
+            shuffle() {
+                this.tracks.sort(() => (Math.random() > .5) ? 1 : -1);
+            }
+
+            mute() {
+                this.audio.muted = true;
+            }
+
+            unmute() {
+                this.audio.muted = false;
+            }
+
+            nextTrack() {
+                if (++this.counter == this.tracks.length) {
+                    this.counter = 0;
+                    this.buildTrackList();
+                }
+
+                this.audio.src = encodeURIComponent(path + this.name + "/" + this.tracks[this.counter]);
+                this.audio.play();
+                printTrack()
+            }
+
+            buildTrackList() {
+                let ads = adverts;
+                ads.sort(() => (Math.random() > .5) ? 1 : -1);    
+                this.tracks.sort(() => (Math.random() > .5) ? 1 : -1);
+
+                let i = Math.floor(Math.random() * 4);;
+                for(let ad in ads) {
+                    this.tracks.splice(i, 0, ads[ad]);
+                    if ((i + 3) < this.tracks.length)
+                        i += 3;
+                    else
+                        break;
+                }
+            }
+        }
+
+        class Radio {
+            constructor(radio) {
+                this.stations = [];
+                for (let i = 0; i < radio.stations.length; i++)
+                    this.stations.push(new RadioStation(radio.stations[i]))
+
+                this.currentStation = 0;
+                this.stations[this.currentStation].unmute();
+
+                this.nextStation = this.nextStation.bind(this);
+            }
+
+            nextStation(direction) {
+                let tuners = ["assets/san-andreas/radio/Tuning/tuning0.mp3", "assets/san-andreas/radio/Tuning/tuning1.mp3"]
+                let tuner = tuners[Math.floor(Math.random() * tuners.length)];
+                let tunerAudio = new Audio(tuner);
+                tunerAudio.loop = false;
+
+                if (direction == 'left') {
+                    this.stations[this.currentStation].mute();
+
+                    if (++this.currentStation >= this.stations.length)
+                        this.currentStation = 0;
+
+                    tunerAudio.play();
+                    tunerAudio.onended = function () {
+                        this.stations[this.currentStation].unmute();
+                    }.bind(this)
+                } else if (direction == 'right') {
+                    this.stations[this.currentStation].mute();
+
+                    if (--this.currentStation < 0)
+                        this.currentStation = this.stations.length - 1;
+
+                    tunerAudio.play();
+                    tunerAudio.onended = function () {
+                        this.stations[this.currentStation].unmute();
+                    }.bind(this)
+                }
+            }
+        }
+
+        const radioJson = 
+        {
+            "stations": [
+                {
+                    "name": "Bounce FM",
+                    "icon": "bounce-fm.webp",
+                    "tracks": ['01. Love Rollercoaster (Ohio Players).mp3', '02. Loopzilla (George Clinton).mp3', '03. Candy (Cameo).mp3', '04. You Dropped A Bomb On Me (The Gap Band).mp3', '05. Cold Blooded (Rick James).mp3', '06. I Can Make You Dance (Zapp).mp3', '07. Hollywood Swinging (Kool And The Gang).mp3', '08. Twilight (Maze).mp3', '09. Yum Yum (Fat Back).mp3', '10. West Coast Poplock (Ronnie Hudson).mp3', '11. Fantastic Voyage (Lakeside).mp3', '12. Let It Whip (Dazz Band).mp3', '13. Between the Sheets (The Isley Brothers).mp3', '14. Love Is The Message (MFSB).mp3', '15. Funky Worm (Ohio Players).mp3', '16. Running Away (Roy Ayers).mp3', '17. Odyssey (Johny Harris).mp3']
+                },
+                {
+                    "name": "CSR 103.9 (Contemporary Soul Radio)",
+                    "icon": "csr-1039.webp",
+                    "tracks": ["01. Keep On Movin' (Soul II Soul).mp3", '02. So You Like What You See (Samuelle).mp3', '03. Sensitivity (Ralph Tresvant).mp3', "04. My Lovin' (Never Gonna Get It) (En Vogue).mp3", "05. I'm So Into You (SWV).mp3", '06. Groove Me (Guy).mp3', '07. Rub You The Right Way (Johny Gill).mp3', '08. Motownphilly (Boyz II Men).mp3', "09. Don't Be Cruel (Bobby Brown).mp3", "10. Don't Be Afraid (Aaron Hall).mp3", '11. Poison (Bell Biv DeVoe).mp3', '12. New Jack Swing (Wrecks-N-Effect).mp3', '13. I Got The Feeling (Today).mp3']
+                },
+                {
+                    "name": "K-DST",
+                    "icon": "k-dst.webp",
+                    "tracks": ['01. Running Down A Dream (Tom Petty).mp3', '02. Barracuda (Heart).mp3', '03. Woman to Woman (Joe Cocker).mp3', '04. Young Turks (Rod Stewart).mp3', '05. Somebody Up There Likes Me (David Bowie).mp3', '06. Some Kind Of Wonderful (Grand Funk Railroad).mp3', '07. Strutter (Kiss).mp3', '08. Hold The Line (Toto).mp3', '09. Green River (Creedence Clearwater Revival).mp3', '10. Eminence Front (The Who).mp3', '11. A Horse With No Name (America).mp3', '12. Slow Ride (Foghat).mp3', '13. White Wedding (Billy Idol).mp3', '14. Get Down To It (Humble Pie).mp3', '15. Two Tickets To Paradise (Eddie Money).mp3', "16. Smokin' (Boston).mp3", '17. Free Bird (Lynyrd Skynyrd).mp3']
+                },
+                {
+                    "name": "K-Jah Radio West",
+                    "icon": "kjah-west.webp",
+                    "tracks": ['01. King Tubby Meets Rockers Uptown (Augustus Pablo).mp3', '02. Funky Kingston (Toots and The Maytals).mp3', '03. Ring My Bell (Blood Sisters).mp3', "04. Don't Let It Go To Your Head (Black Harmony).mp3", '05. Revolution (Dennis Brown).mp3', '06. Sidewalk Killer (I-Roy).mp3', '07. Wicked Inna Bed (Shabba Ranks).mp3', '08. Batty Rider (Buju Banton).mp3', '09. Cocaine In My Brain (Dillinger).mp3', '10. Armagideon Time (Willie Williams).mp3', '11. Here I Come (Barrington Levy).mp3', '12. Great Train Robbery (Black Uhuru).mp3', '13. Drum Pan Sound (Reggie Stepper).mp3', '14. Pressure Drop (The Maytals).mp3', '15. Chase The Devil (Max Romeo and The Upsetters).mp3', '16. Bam Bam (The Pliers).mp3']
+                },
+                {
+                    "name": "K-Rose",
+                    "icon": "k-rose.svg",
+                    "tracks": ['01. Amos Moses (Jerry Reed).mp3', '02. Louisiana Woman, Mississippi Man (Conway Twitty and Lorretta Lynn).mp3', '03. One Step Forward (The Desert Rose Band).mp3', '04. New York City (Statler Brothers).mp3', '05. Bed Of Roses (Statler Brothers).mp3', '06. The Letter That Johnny Walker Read (Asleep At The Wheel).mp3', '07. Queen Of Hearts (Juice Newton).mp3', "08. Hey Good Lookin' (Hank Williams).mp3", '09. Three Cigarettes In The Ashtray (Patsy Cline).mp3', '10. I Love A Rainy Night (Eddie Rabbit).mp3', '11. Crazy (Willie Nelson).mp3', '12. Make The World Go Away (Mickey Gilley).mp3', "13. Mamma Don't Let Your Babies Grow Up To Be Cowboys (Ed Bruce).mp3", '14. Always Wanting You (Merle Haggard).mp3', '15. All My Exes Live In Texas (Whitey Shafer).mp3']
+                },
+                {
+                    "name": "Master Sounds 98.3",
+                    "icon": "master-sounds-983.webp",
+                    "tracks": ['01. Express Yourself (Charles Wright).mp3', '02. Green Onions (Booker T And The MGs).mp3', '03. Cross The Tracks (We Better Go Back) (Maceo And The Macks).mp3', '04. Hot Pants (Bobby Byrd).mp3', '05. Think About It (Lyn Collins).mp3', '06. Rock Creek Park (The Blackbyrds).mp3', '07. Nautilus (Bob James).mp3', '08. Funky President (James Brown).mp3', "09. Grunt (The J.B.'s).mp3", '10. Jungle Fever (The Chakachas).mp3', '11. Low Rider (War).mp3', '12. Soul Power 74 (Maceo And The Macks).mp3', '13. Tainted Love (Gloria Jones).mp3', '14. So Much Trouble In My Mind (Sir Joe Quarterman).mp3', '15. Rock Me Again And Again (Lyn Collins).mp3', '16. I Know You Got Soul (Bobby Byrd).mp3', '17. The Payback (James Brown).mp3', "18. Smokin' Cheeba Cheeba (Harlem Underground Band).mp3"]
+                },
+                {
+                    "name": "Playback FM",
+                    "icon": "playback-fm.svg",
+                    "tracks": ['01. Me And The Biz (Masta Ace).mp3', '02. Warm It Up Kane (Big Daddy Kane).mp3', '03. Road To The Riches (Kool G Rap and DJ Polo).mp3', '04. Rebel Without A Pause (Public Enemy).mp3', '05. It Takes Two (Rob Base And DJ E-Z Rock).mp3', '06. I Know You Got Soul (Eric B And Rakim).mp3', '07. Brand Nubian (Brand Nubian).mp3', "08. Children's Story (Slick Rick).mp3", '09. BYS (Gang Starr).mp3', '10. Critical Breakdown (Ultramagnetic MCs).mp3', '11. The Vapours (Biz Markie).mp3', '12. The Godfather (Spoonie Gåå).mp3']
+                },
+                {
+                    "name": "Radio Los Santos",
+                    "icon": "radio-los-santos.webp",
+                    "tracks": ['01. Fuck Wit Dre Day (Dr Dre feat Snoop Dog).mp3', "02. I Don't Give A Fuck (2Pac).mp3", "03. Nuthin' But A G Thang (Dr Dre feat Snoop Dog).mp3", "04. Hood Took Me Under (Compton's Most Wanted).mp3", "05. It's Funky Enough (The DOC).mp3", '06. Alwayz Into Something (NWA).mp3', '07. Express Yourself (NWA).mp3', '08. La Raza (Kid Frost).mp3', '09. How I Could Just Kill A Man (Cypress Hill).mp3', '10. Murder Rap (Above The Law).mp3', '11. Easy-Er Said Than Done (Easy-E).mp3', '12. Guerrillas In Tha Mist (Da Lench Mob).mp3', '13. It Was A Good Day (Ice Cube).mp3', '14. Check Yo Self (Ice Cube).mp3', '15. Deep Cover (Dr Dre feat Snoop Dog).mp3', '16. The Ghetto (Too Short).mp3']
+                },
+                {
+                    "name": "Radio X",
+                    "icon": "radiox.webp",
+                    "tracks": ['01. Midlife Crisis (Faith No More).mp3', "02. Movin' On Up (Primal Scream).mp3", '03. Personal Jesus (Depeche Mode).mp3', '04. Mother (Danzig).mp3', '05. Unsung (Helmet).mp3', '06. Cult Of Personality (Living Colour).mp3', '07. Hellraiser (Ozzy Osbourne).mp3', '08. Killing In The Name (Rage Against The Machine).mp3', "09. Welcome To The Jungle (Guns N' Roses).mp3", "10. Been Caught Stealing (Jane's Addiction).mp3", '11. Rusty Cage (Soundgarden).mp3', "12. Pretend We're Dead (L7).mp3", "13. Fool's Gold (The Stone Roses).mp3", '14. Them Bones (Alice In Chains).mp3', '15. Plush (Stone Temple Pilots).mp3']
+                },
+                {
+                    "name": "SF-UR (San Fierro Underground Radio)",
+                    "icon": "sfur.webp",
+                    "tracks": ['01. Promised Land (Joe Smooth).mp3', '02. Pacific (808 State).mp3', '03. Voodoo Ray (A Guy Called Gerald).mp3', '04. Your Love (Frankie Knuckles).mp3', '05. Break 4 Love (Raze).mp3', '06. Ma Foom Bey (Cultural Vibe).mp3', '07. Make My Body Rock (Jomanda).mp3', '08. Someday (Ce Ce Rogers).mp3', '09. Let The Music Use You (NightWriters).mp3', '10. Can You Feel It (Mr Fingers).mp3', '11. Move Your Body (Marshall Jefferson).mp3', '12. This Is Acid (Maurice).mp3', '13. Weekend (The Todd Terry Project).mp3', '14. The Morning After (Fallout).mp3', "15. I'll Be Your Friend (Robert Owens).mp3", '16. I Need A Rhythm (28th Street Crew).mp3']
+                }                
+            ]
+        };
+        var adverts = ['Ammunation.mp3', 'PSA (Cars for teenagers instead of bicycles).mp3', "Blotto's #1 (Gold-plated Razorblades).mp3", "Blotto's #2 (Silver Straw).mp3", 'Bouche Cologne.mp3', "Castradon ('Baldness is loneliness').mp3", 'Commando Pest Eradication.mp3', 'Commemorative Miniatures.mp3', "The Crazy Cock Gentleman's Club.mp3", 'Creative Plastic Surgery.mp3', 'Eris Shoes.mp3', 'Hampshire Nannies Ltd.mp3', 'The Military.mp3', 'Logger Beer.mp3', 'Logger Light.mp3', 'The Midlife Crisis Center.mp3', "'My Five Uncles' on LSBC.mp3", 'Proposition 421 (Outlaw Smoking Everywhere).mp3', 'Proposition 832 (Ban Immigration Green Cards).mp3', 'Redwood Cigarettes.mp3', 'Renegade Cologne.mp3', 'Sooth Cough Medicine.mp3', 'San Andreas Telephone #1 (Orphan).mp3', 'San Andreas Telephone #2 (Ex-husband).mp3', 'San Andreas Telephone #3 (New Father).mp3', 'San Andreas Telephone #4 (Son).mp3', 'Ultimate Disc in the Dark.mp3', 'Fokari Film.mp3', 'Dream Makers.mp3', "'Intergalactic Wrestling Championship' on Weazel.mp3", 'Proposition 602 (No Mass Transit).mp3', "Mike Andrews Live #1 ('U-S-A!').mp3", 'Abiggo Brokerage and Pawn.mp3', "Blotto's #3 (Tiny Spoon).mp3", 'Shine by Helmetshine.mp3', 'de Koch Diamonds.mp3', "Janus ('Invent the new you').mp3", 'Rapidite, the Do-It-Yourself Sexual Realignment Kit.mp3', "Grin ('Keeps me at the Equator...').mp3", "Mike Andrews Live #2 ('Enjoy it').mp3", 'Celebrate with Cake #1 (Wife).mp3', 'Celebrate with Cake #2 (Son).mp3', 'Sprunk.mp3', 'Crimson Executive Spouse Indemnity Services.mp3', "Herr Gruber's Spa.mp3", 'American Bank of Los Santos.mp3', 'The Cavern of Sorrow Fantasy Game.mp3', "Cluckin' Bell #1 ('We're psychotic crazies').mp3", "Cluckin' Bell #2 ('All you protestors can go to Hell').mp3", "The Glory Hole Themepark #1 ('I know it's safe...').mp3", "The Glory Hole Themepark #2 ('Something they'll never forget').mp3", 'Inversion Therapy.mp3', "Kilimanjaro Clothes #1 ('Women love big men').mp3", "Kilimanjaro Clothes #2 ('You're as big as a mountain').mp3", 'Carcer City Vacations.mp3', "'Law' on Weazel #1 ('Gritty new show').mp3", "'Law' on Weazel #2 ('Because paperwork is dramatic').mp3", "'Law' on Weazel #3 ('The real life fictional drama').mp3", 'The Starfish Resort and Casino.mp3', 'Tropicarcinoma.mp3', "Zebra Bar #1 ('What about nuts').mp3", "Zebra Bar #2 ('Wow, it's enormous.').mp3", "The Epsilon Program #1 ('Do you want answers').mp3", "The Epsilon Program #2 ('Science is a lie').mp3", "The Epsilon Program #3 ('Do you worry that nobody likes you').mp3", 'Executive Intruder Extermination Service.mp3', 'Exsorbeo Handheld Gaming System.mp3', "Lustrious #1 ('There she was...').mp3", "Lustrious #2 ('How you get your hair all greasy').mp3"]
+        for(let i = 0; i < adverts.length; i++)
+            adverts[i] = "../Adverts/" + adverts[i];
+
+
+        var radio = new Radio(radioJson);
+
+        // Zapolni carousel z ikoncami
+        var container = document.getElementById("picker");
+        var icon = encodeURI(path + radio.stations[0].name + "/" + radio.stations[0].icon);
+        var picker = '<div class="carousel-item active"><img src="' + icon + '" class="d-block mx-auto carousel-img"></div>'
+
+        for (let i = 1; i < radio.stations.length; i++) {
+            const name = radio.stations[i].name;
+            icon = encodeURI(path + name + "/" + radio.stations[i].icon);
+            picker +='<div class="carousel-item"><img src="' + icon + '" class="d-block mx-auto carousel-img"></div>'
+        }
+        container.innerHTML = picker;
+
+        // Ko zamenja postajo
+        let carousel = document.getElementById("coverFlow")
+        carousel.addEventListener('slide.bs.carousel', event => {
+            radio.nextStation(event.direction);
+            printTrack()
+        })
+
+        // Izpiše ime skladbe
+        function printTrack() {
+            let display = document.getElementById("trackName");
+            let currentTrack = radio.stations[radio.currentStation].counter;
+            let name = radio.stations[radio.currentStation].tracks[currentTrack];
+            if(name.startsWith("../"))
+                name = "Oglasi";
+            else
+                name = name.substr(4, name.length - 8);
+            display.innerHTML = name;
+        }
+
+        printTrack()
+    </script>
+  </body>
+</html>

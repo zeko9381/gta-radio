@@ -1,0 +1,14 @@
+.carousel-img {
+  height: 30vh;
+}
+
+#coverFlow {
+  width: 100vw;
+}
+
+#trackName {
+  text-align: center;
+  margin: 0 10px 0 10px;
+  position: absolute;
+  top: 15vh;
+}
